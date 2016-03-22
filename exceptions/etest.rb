@@ -1,5 +1,10 @@
 while 1
     puts "Enter a number>>"
-    num = Kernel.gets.match(/\d+/)[0]
-    puts "#{num} + 1 is: #{num+1}"
+    begin
+        num = Kernel.gets.match(/\d+/)[0]
+    rescue
+        puts "Erroneous input: #{$!}"
+    else
+        puts "#{num} + 1 is: #{num.to_i + 1}"
+    end
 end
