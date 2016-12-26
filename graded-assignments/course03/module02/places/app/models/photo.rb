@@ -7,14 +7,13 @@ class Photo
     Mongoid::Clients.default
   end
 
-  def initialize(params=nil)
-    @id = params[:_id].to_s unless params.nil?
-    metadata = params[:metadata] unless params.nil?
-    @location = Point.new(metadata[:location]) unless metadata.nil?
+  def initialize(params={})
+    @id = params[:_id].to_s unless params.nil? || params[:_id].nil?
+    @location = Point.new(params[:metadata][:location]) unless params.nil? || params[:metadata].nil?
   end
 
   def persisted?
-    return @id.nil? ? false : true
+    return !@id.nil?
   end
 
   def save
@@ -29,7 +28,10 @@ class Photo
         }
       }
       grid_file = Mongo::Grid::File.new(@contents.read, description)
-      @id = self.class.mongo_client.database.fs.insert_one(grid_file).to_s
+      unless @contents.nil?
+        id = self.class.mongo_client.database.fs.insert_one(grid_file)
+        @id = id.to_s
+      end
     end
   end
 
@@ -39,6 +41,16 @@ class Photo
 
   def self.find(id)
     doc = mongo_client.database.fs.find(:_id=>BSON::ObjectId.from_string(id)).first
-    Photo.new(doc)
+    Photo.new(doc) unless doc.nil?
+  end
+
+  def contents
+    gf = self.class.mongo_client.database.fs.find_one(:_id=>BSON::ObjectId.from_string(@id))
+
+    gf.nil? ? "" : Mongo::Grid::File::Chunk.assemble(gf.chunks)
+  end
+
+  def destroy
+    self.class.mongo_client.database.fs.find(:_id=>BSON::ObjectId.from_string(@id)).delete_one
   end
 end
