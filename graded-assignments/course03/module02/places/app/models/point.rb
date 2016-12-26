@@ -3,9 +3,9 @@ class Point
     attr_accessor :latitude
 
     def initialize(point)
-        @longitude = point[:lng] if point.key? :lng
-        @latitude = point[:lat] if point.key? :lat
-        @longitude, @latitude = point[:coordinates] if point.key? :coordinates
+        @longitude = point[:lng] unless point[:lng].nil?
+        @latitude = point[:lat] unless point[:lat].nil?
+        @longitude, @latitude = point[:coordinates] unless point[:coordinates].nil?
     end
 
 
