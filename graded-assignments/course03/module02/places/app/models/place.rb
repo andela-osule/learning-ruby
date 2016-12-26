@@ -10,9 +10,7 @@ class Place
         @id = place[:_id].to_s
         geometry = place[:geometry].symbolize_keys
         @location = Point.new(geometry[:geolocation])
-
-        @address_components = place[:address_components].reduce([]){|memo,chunk| memo<< AddressComponent.new(chunk)}
-        
+        @address_components = !place[:address_components].nil? ? place[:address_components].reduce([]){|memo,chunk| memo<<AddressComponent.new(chunk)} : []
         @formatted_address = place[:formatted_address]     
     end
 
@@ -97,8 +95,14 @@ class Place
                 :$geometry=>point.to_hash,
             }
         }
-        near[:$near][:$maxDistance] = max_meters unless max_meters.nil?
-        
+        near[:$near][:$maxDistance] = max_meters.to_i unless max_meters.nil?
+
         collection.find({"geometry.geolocation"=>near})
+    end
+
+    def near(max_meters=nil)
+        self.class.to_places(
+            self.class.near(@location, max_meters)
+        )
     end
 end
