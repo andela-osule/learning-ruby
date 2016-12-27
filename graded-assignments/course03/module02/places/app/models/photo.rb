@@ -35,7 +35,7 @@ class Photo
       doc = self.class.mongo_client.database.fs.find(:_id=>BSON::ObjectId.from_string(@id)).first
       doc[:metadata] = {:location=>@location.to_hash, :place=>@place}
       self.class.mongo_client.database.fs.find(
-        '_id': BSON::ObjectId.from_string(@id)
+        :_id=>BSON::ObjectId.from_string(@id)
       ).update_one(doc)
     end
   end
@@ -73,6 +73,11 @@ class Photo
   def place=(_place)
     @place = BSON::ObjectId.from_string(_place.id) if _place.is_a? Place
     @place = BSON::ObjectId.from_string(_place) if _place.is_a? String
-    @place = _place if BSON::ObjectId
+    @place = _place if _place.is_a? BSON::ObjectId
+  end
+
+  def self.find_photos_for_place(place_id)
+    place_id = BSON::ObjectId.from_string(place_id) if place_id.is_a? String
+    mongo_client.database.fs.find("metadata.place": place_id)
   end
 end
