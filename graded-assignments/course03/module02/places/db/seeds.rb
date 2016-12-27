@@ -9,6 +9,10 @@
 require 'pp'
 Photo.all.each { |photo| photo.destroy }
 Place.all.each { |place| place.destroy }
+Photo.mongo_client.database.fs.find.each { |p| 
+  Photo.mongo_client.database.fs.find_one(:_id=>p[:_id]).delete_one()
+}
+
 Place.create_indexes
 Place.load_all(File.open('./db/places.json'))
 Dir.glob("./db/image*.jpg") {|f| photo=Photo.new; photo.contents=File.open(f,'rb'); photo.save}
