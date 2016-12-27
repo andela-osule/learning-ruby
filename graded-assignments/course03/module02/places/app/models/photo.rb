@@ -15,7 +15,7 @@ class Photo
   end
 
   def persisted?
-    return !@id.nil?
+    !@id.nil?
   end
 
   def save

@@ -10,7 +10,7 @@ class Point
 
 
     def to_hash
-        return {
+        {
             :type=>"Point", 
             :coordinates=>[@longitude, @latitude]
         }

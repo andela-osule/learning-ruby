@@ -4,9 +4,8 @@ class AddressComponent
     attr_reader :types
 
     def initialize(address)
-        address = address.symbolize_keys
-        @long_name = address[:long_name] if address.key? :long_name
-        @short_name = address[:short_name] if address.key? :short_name
-        @types = address[:types] if address.key? :types
+        @long_name = address[:long_name] unless address[:long_name].nil?
+        @short_name = address[:short_name] unless address[:short_name].nil?
+        @types = address[:types] unless address[:types].nil?
     end
 end

@@ -1,4 +1,5 @@
 class Place
+    include ActiveModel::Model
     attr_accessor :id
     attr_accessor :formatted_address
     attr_accessor :location
@@ -9,6 +10,10 @@ class Place
         @location = Point.new(place[:geometry][:geolocation])
         @address_components = !place[:address_components].nil? ? place[:address_components].reduce([]){|memo,chunk| memo<<AddressComponent.new(chunk)} : []
         @formatted_address = place[:formatted_address]     
+    end
+
+    def persisted?
+        !@id.nil?
     end
 
     def self.mongo_client
@@ -106,6 +111,9 @@ class Place
     def photos(offset=0, limit=0)
         self.class.mongo_client.database.fs.find(
             "metadata.place"=>BSON::ObjectId.from_string(@id)
-        ).map{|photo| Photo.new(photo)}
+        )
+        .skip(offset)
+        .limit(limit)
+        .map{|photo| Photo.new(photo)}
     end
 end
