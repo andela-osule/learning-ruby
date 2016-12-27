@@ -21,6 +21,7 @@ class Photo
   def save
     unless persisted?
       gps = EXIFR::JPEG.new(@contents).gps
+      @contents.rewind
       @location=Point.new({:lng=>gps.longitude, :lat=>gps.latitude})
       description = {
         :content_type=>"image/jpeg",
