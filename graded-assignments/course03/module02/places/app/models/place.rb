@@ -5,11 +5,8 @@ class Place
     attr_accessor :address_components
 
     def initialize(place)
-        place = place.symbolize_keys
-
         @id = place[:_id].to_s
-        geometry = place[:geometry].symbolize_keys
-        @location = Point.new(geometry[:geolocation])
+        @location = Point.new(place[:geometry][:geolocation])
         @address_components = !place[:address_components].nil? ? place[:address_components].reduce([]){|memo,chunk| memo<<AddressComponent.new(chunk)} : []
         @formatted_address = place[:formatted_address]     
     end
@@ -89,20 +86,26 @@ class Place
         collection.indexes.drop_one("geometry.geolocation_2dsphere")
     end
 
-    def self.near(point, max_meters=nil)
+    def self.near(point, max_dist=nil)
         near = {
             :$near=>{
                 :$geometry=>point.to_hash,
             }
         }
-        near[:$near][:$maxDistance] = max_meters.to_i unless max_meters.nil?
+        near[:$near][:$maxDistance] = max_dist.to_i unless max_dist.nil?
 
         collection.find({"geometry.geolocation"=>near})
     end
 
-    def near(max_meters=nil)
+    def near(max_dist=nil)
         self.class.to_places(
-            self.class.near(@location, max_meters)
+            self.class.near(@location, max_dist)
         )
+    end
+
+    def photos(offset=0, limit=0)
+        self.class.mongo_client.database.fs.find(
+            "metadata.place"=>BSON::ObjectId.from_string(@id)
+        ).map{|photo| Photo.new(photo)}
     end
 end
