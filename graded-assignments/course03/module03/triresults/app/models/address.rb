@@ -3,10 +3,10 @@ class Address
   attr_accessor :state
   attr_accessor :location
 
-  def initialize(params)
-    @city = params[:city]
-    @state = params[:state]
-    @location = Point.new(params[:loc])
+  def initialize(params={})
+    @city = params[:city] unless params[:city].nil?
+    @state = params[:state] unless params[:state].nil?
+    @location = Point.new(params[:loc]) unless params[:loc].nil?
   end
 
   def self.mongoize(address)
