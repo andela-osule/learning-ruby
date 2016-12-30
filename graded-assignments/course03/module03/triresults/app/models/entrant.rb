@@ -23,6 +23,9 @@ class Entrant
   delegate :name, :name=, to: :race, prefix: "race"
   delegate :date, :date=, to: :race, prefix: "race"
 
+  scope :upcoming, -> { where(:date.gte => Date.current) }
+  scope :past, -> { where(:date.lt => Date.current) }
+
   RESULTS = {
     "swim"=>SwimResult,
     "t1"=>LegResult,
