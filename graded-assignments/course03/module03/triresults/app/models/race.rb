@@ -92,6 +92,6 @@ class Race
 
   def self.upcoming_available_to racer
     race_ids=racer.races.pluck(:race).map {|r| r[:_id]}
-    upcoming.where(:id.nin => race_ids)
+    upcoming.not_in(:id => race_ids)
   end
 end
