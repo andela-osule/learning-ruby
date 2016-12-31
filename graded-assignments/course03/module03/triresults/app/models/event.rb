@@ -18,7 +18,7 @@ class Event
         distance * 1000
       when "yards" then
         distance * 0.9144
-      else
+      when "meters" then
         distance
     end
   end
