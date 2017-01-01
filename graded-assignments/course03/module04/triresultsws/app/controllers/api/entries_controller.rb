@@ -1,6 +1,6 @@
 module Api
-  class RacersController < ApplicationController
-
+  class EntriesController < ApplicationController
+    
     def index
     end
 
