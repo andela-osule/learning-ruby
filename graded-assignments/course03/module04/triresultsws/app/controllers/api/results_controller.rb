@@ -1,5 +1,6 @@
 module Api
   class ResultsController < ApplicationController
+    protect_from_forgery with: :null_session
     
     def index
       if !request.accept || request.accept == "*/*"
@@ -18,5 +19,35 @@ module Api
         render :partial=>"result", :object=>@result
       end
     end
+
+    def update
+      entrant=Race.find(params[:race_id]).entrants.where(:id=>params[:id]).first
+      result=params[:result] 
+      if result
+        if result[:swim] 
+          entrant.swim=entrant.race.race.swim
+          entrant.swim_secs = result[:swim].to_f
+        end
+        if result[:t1]
+          entrant.t1=entrant.race.race.t1
+          entrant.t1_secs = result[:t1].to_f
+        end
+        if result[:bike] 
+          entrant.bike=entrant.race.race.bike
+          entrant.bike_secs = result[:bike].to_f
+        end
+        if result[:t2]
+          entrant.t2=entrant.race.race.t2
+          entrant.t2_secs = result[:t2].to_f
+        end
+        if result[:run]
+          entrant.run=entrant.race.race.run
+          entrant.run_secs = result[:run].to_f
+        end
+        entrant.save
+      end
+      render :nothing=>true, status: :ok
+    end
+
   end
 end
